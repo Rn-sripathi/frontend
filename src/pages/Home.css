@@ -1,0 +1,346 @@
+/* General Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 62.5%;
+}
+
+body {
+    background: rgb(3, 0, 31);
+    color: white;
+    font-family: 'Jost', sans-serif;
+}
+/* body css */
+
+.App {
+    min-height: 100vh;
+    display: flex;
+}
+.upperSideTop, .upperSideBottom {
+    background-color: rgb(3, 0, 31);
+  }
+.sideBar {
+    flex: 1;
+    max-width: 300px;
+    border-right: 1px solid rgb(100, 100, 100);
+    background: #1C1A3C;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: fixed; /* Make the sidebar fixed */
+    height: 100vh; /* Full height */
+    width: 300px; /* Set the width explicitly */
+}
+
+.main {
+    flex: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    background-color: rgb(3, 0, 31);
+    margin-left: 300px; /* Add margin to account for the fixed sidebar */
+}
+
+
+
+.logo {
+    margin-right: 1rem;
+}
+
+.brand {
+    font-family: jost;
+    font-size: 3rem;
+    color: white;
+}
+
+.upperSide {
+    padding: 2.5rem ;
+    border-bottom: 0px solid rgb(3, 0, 31);
+    flex-grow: 1;
+    background-color:rgb(3, 0, 31) ;
+    
+}
+
+.upperSideTop {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2.5rem;
+}
+
+.addBtn {
+    height: 2rem;
+    padding-right: 1rem;
+}
+
+.upperSideBottom {
+    flex-grow: 1;
+    overflow-y: auto;
+    max-height: 580px;
+}
+
+.midBtn {
+    background: #2D2B55;
+    border: 1px solid rgba(98, 98, 98, 1);
+    color: white;
+    padding: 1.5rem;
+    font-size: 1.5rem;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    margin-bottom: 3rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family:jost;
+}
+
+.query {
+    display: flex;
+    align-items: center;
+    font-family: jost;
+    background: #2D2B55;
+    color: rgba(222, 222, 222, 1);
+    padding: 1.5rem;
+    width: 100%;
+    margin: 1rem auto;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(98, 98, 98, 1);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    box-sizing: border-box;
+    font-size: small;
+  }
+
+.query > img {
+    margin-right: 2rem;
+    object-fit: cover;
+    height: 1.75rem;
+}
+
+.query > span {
+    padding-right: 2rem; /* Add padding to the text */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+.chats {
+    width: 100%;
+    max-width: 900px;
+    flex-grow: 1;
+    overflow-y: auto;
+    margin-bottom: 2rem;
+    background: rgb(3, 0, 31);
+    border-radius: 1rem;
+    display:flex;
+    flex: 1;
+    /* flex-direction: column; */
+    overflow: hidden;
+    height: calc(100vh - 200px);;
+}
+
+.chat {
+    margin: 1rem;
+    padding: 2rem 3rem;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: flex-start;
+    max-height: 400px; /* Set a maximum height */
+    overflow-y: auto; /* Enable vertical scrolling */
+    background: #3C3A6A;
+    border-radius: 1rem;
+    color: white;
+    text-align: left;
+
+}
+
+.chatFooter {
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: sticky;
+    bottom: 0;
+    background: rgb(3, 0, 31); /* Match the background color */
+    padding: 1rem 0; /* Add some padding for spacing */
+}
+
+.inp {
+    padding: 0.5rem;
+    background: #1C1A3C;
+    display: flex;
+    align-items: center;
+    border-radius: 0.5rem;
+    width: 700px; /* Ensure it takes the full width of its container */
+}
+
+.inp > textarea {
+    font-size: medium ;
+    flex-grow: 1; /* Take up remaining space */
+    outline: none;
+    padding: 1.25rem;
+    color: white;
+    background: transparent;
+    border: none;
+    font-family: 'Jost', sans-serif;
+    resize: none; /* Prevent manual resizing */
+    overflow: hidden; /* Hide overflow initially */
+    height: auto; /* Adjust height automatically */
+    min-height: 4rem; /* Minimum height of the textarea */
+    max-height: 10rem; /* Maximum height before scrolling */
+}
+
+.inp > textarea:focus {
+    overflow: auto; /* Show scrollbar when focused */
+}
+
+
+.send {
+    background: transparent;
+    border: none;
+    padding: 1.25rem;
+    cursor: pointer;
+    color: white;
+}
+
+.chatFooter > p {
+    margin: 1rem 0;
+}
+
+
+.chat-log{
+    padding: 1rem;
+    text-align: left;
+    /* display: flex; */
+    overflow-y: auto;
+    text-align: left;
+}
+.chat-message{
+padding: 12px;
+padding: left 44px right 24px;
+display: flex;
+max-width: 480-px;
+margin-left: auto;
+margin-right: auto;
+font-size: small;
+/* align-items: center; */
+padding-inline: 10px;
+
+}
+
+.avatar {
+background: #2D2B55;
+border-radius:50%;
+width: 40px;
+height: 40px;
+flex-shrink: 0;
+display: flex;
+align-items: center;
+justify-content: center;
+
+}
+
+
+.message{
+padding: 10px;
+padding-left: 140 px;
+padding-right: 140px;
+/* border-bottom: 1px solid rgba(98, 98, 98, 1); */
+/* border: 1px solid rgba(98, 98, 98, 1);
+border-radius: 10px; */
+
+}
+
+.avatar-logo {
+    width: 30px;
+    height: 30px;
+  }
+.useravatar-logo{
+    color: white;
+    width: 30px;
+    height: 30px;
+}
+
+
+/* Media Queries for Responsiveness */
+@media (max-width: 1200px) {
+    .main {
+        padding: 2rem;
+    }
+
+    .inp {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .App {
+        flex-direction: column;
+    }
+
+    .sideBar {
+        width: 100%;
+        max-width: none;
+        border-right: none;
+        border-bottom: 1px solid rgb(100, 100, 100);
+    }
+
+    .main {
+        padding: 2rem;
+        align-items: center;
+        box-sizing: border-box;
+    }
+
+    .inp {
+        width: 100%;
+        padding: 1rem;
+        box-sizing: border-box;
+    }
+}
+
+@media (max-width: 480px) {
+    .upperSide,
+    .lowerSide {
+        padding: 1rem;
+    }
+
+    .midBtn,
+    .query {
+        width: 100%;
+        padding: 1rem;
+    }
+
+    .inp {
+        width: 100%;
+    }
+
+    .logo,
+    .brand,
+    .upperSideTop,
+    .addBtn {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+@media (max-width: 768px) {
+    /* Adjust avatar size and padding on smaller screens */
+    .avatar {
+        width: 30px;
+        height: 30px;
+    }
+
+    .message {
+        padding-left: 100px;
+        padding-right: 100px;
+    }
+}
