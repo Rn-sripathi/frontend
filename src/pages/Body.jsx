@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { Ollama } from 'ollama';
 import './Home.css';
 import gptLogo from '../../assets/cube.svg';
 import addBtn from '../../assets/add-30.png';
@@ -8,15 +7,12 @@ import msgIcon from '../../assets/message.svg';
 import sendBtn from '../../assets/send.svg';
 import userIconscg from '../../assets/kindpng_104902.svg';
 
-const ollama = new Ollama({
-  model: 'phi'
-})
-
 function Home() {
   const [inputValue, setInputValue] = useState('');
   const [sessions, setSessions] = useState([{ id: 1, queries: [], chatLog: [], firstQuery: '' }]);
   const [currentSessionId, setCurrentSessionId] = useState(1);
   const textareaRef = useRef(null);
+  const chatLogRef = useRef(null);
 
   // Handle input change
   const handleInputChange = (event) => {
@@ -29,54 +25,32 @@ function Home() {
     if (inputValue.trim() !== '') {
       const newMessage = { sender: 'user', message: inputValue };
 
-      
       // Call the LLM API to get a response
-      // Function to call the API with retry mechanism
       const callApiWithRetry = async (retries = 3, delay = 1000) => {
         for (let i = 0; i < retries; i++) {
           try {
-
-            let streamedResponse = '';
-            // const response = await axios.post(
-            //   'http://localhost:11434/api/generate', // Replace with your Inference API endpoint
-            //   {
-            //     model: 'phi',
-            //     prompt: inputValue,
-            //     format: 'json',
-            //     stream: false
-            //   },
-            //   {
-            //     headers: { 
-            //       'Content-Type': 'application/json'
-            //     },
-            //   }
-            // );
-            
-
-            const response = await ollama.chat(
+            const response = await axios.post(
+              'http://localhost:11434/api/generate', // Replace with your Inference API endpoint
               {
                 model: 'phi',
-                messages: [{role:'user', content:inputValue}],
-                stream: true  
+                prompt: inputValue,
+                format: 'json',
+                stream: false
+              },
+              {
+                headers: { // Replace with your API token
+                  'Content-Type': 'application/json'
+                },
               }
             );
-            
-            for await (const part of response){
-              streamedResponse+=part.message.content;
-                
-              console.log('Streamed Part:', part.message.content);
-            }
-            console.log('Complete Streamed Response:', streamedResponse);
-            
-            // console.log(response.message.content)
-      
+
             // Log entire response and cleaned response for debugging
-            // console.log('API response:', response.data);
-            // const responseString = response.message.content;
-            // console.log('Raw response string:', responseString);
-      
+            console.log('API response:', response.data);
+            const responseString = response.data.response.trim();
+            console.log('Raw response string:', responseString);
+
             // Return the raw response data
-            return { sender: 'gpt', message: streamedResponse };
+            return { sender: 'gpt', message: responseString };
           } catch (error) {
             console.error('Error fetching response from Inference API:', error);
             if (error.response) {
@@ -104,10 +78,6 @@ function Home() {
           }
         }
       };
-      
-      
-      
-      
 
       const responseMessage = await callApiWithRetry();
       setSessions(prevSessions => prevSessions.map(session => 
@@ -150,7 +120,8 @@ function Home() {
   useEffect(() => {
     resizeTextarea();
   }, [inputValue]);
-  
+
+  // Scroll to bottom of chat log whenever chatLog changes
   useEffect(() => {
     if (chatLogRef.current) {
       chatLogRef.current.scrollTop = chatLogRef.current.scrollHeight;
@@ -166,6 +137,11 @@ function Home() {
   };
 
   const currentSession = sessions.find(session => session.id === currentSessionId);
+
+  // Debugging logs
+  console.log('Current sessions:', sessions);
+  console.log('Current session ID:', currentSessionId);
+  console.log('Current session:', currentSession);
 
   return (
     <div className="App">
