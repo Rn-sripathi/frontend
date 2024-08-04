@@ -26,49 +26,62 @@ function Home() {
 
       // Call the LLM API to get a response
       // Function to call the API with retry mechanism
-      const callApiWithRetry = async (retries = 3, delay = 2000) => {
+      const callApiWithRetry = async (retries = 3, delay = 1000) => {
         for (let i = 0; i < retries; i++) {
           try {
             const response = await axios.post(
-              'https://api-inference.huggingface.co/models/microsoft/Phi-3-mini-4k-instruct', // Replace with your Inference API endpoint
+              'http://localhost:11434/api/generate', // Replace with your Inference API endpoint
               {
-                inputs: inputValue,
-                parameters: {
-                  max_length: 100 // Adjust this based on your requirements
-                }
+                model: 'phi',
+                prompt: inputValue,
+                format: 'json',
+                stream: false
               },
               {
-                headers: {
-                  'Authorization': 'Bearer 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', // Replace with your API token
-                  'Content-Type': 'application/json',
+                headers: { // Replace with your API token
+                  'Content-Type': 'application/json'
                 },
               }
             );
-            console.log('API response:', response.data); // Debugging line
-            return { sender: 'gpt', message: response.data[0].generated_text.trim() };
+      
+            // Log entire response and cleaned response for debugging
+            console.log('API response:', response.data);
+            const responseString = response.data.response.trim();
+            console.log('Raw response string:', responseString);
+      
+            // Return the raw response data
+            return { sender: 'gpt', message: responseString };
           } catch (error) {
             console.error('Error fetching response from Inference API:', error);
-            if (error.response && error.response.data.error.includes('currently loading')) {
-              if (i < retries - 1) {
-                console.log(`Retrying in ${delay}ms...`);
-                await new Promise(resolve => setTimeout(resolve, delay));
+            if (error.response) {
+              // Server responded with a status other than 2xx
+              console.error('Error response:', error.response);
+              if (error.response.data && error.response.data.error && error.response.data.error.includes('currently loading')) {
+                if (i < retries - 1) {
+                  console.log(`Retrying in ${delay}ms...`);
+                  await new Promise(resolve => setTimeout(resolve, delay));
+                } else {
+                  return { sender: 'gpt', message: 'Error: Model is currently loading. Please try again later.' };
+                }
               } else {
-                return { sender: 'gpt', message: 'Error: Model is currently loading. Please try again later.' };
-              }
-            } else {
-              if (error.response) {
                 return { sender: 'gpt', message: `Error: ${error.response.data.error}` };
-              } else if (error.request) {
-                return { sender: 'gpt', message: 'Error: No response received from the server.' };
-              } else {
-                return { sender: 'gpt', message: `Error: ${error.message}` };
               }
+            } else if (error.request) {
+              // Request was made but no response received
+              console.error('Error request:', error.request);
+              return { sender: 'gpt', message: 'Error: No response received from the server.' };
+            } else {
+              // Something happened in setting up the request that triggered an Error
+              console.error('Error message:', error.message);
+              return { sender: 'gpt', message: `Error: ${error.message}` };
             }
           }
         }
       };
-
-
+      
+      
+      
+      
 
       const responseMessage = await callApiWithRetry();
       setSessions(prevSessions => prevSessions.map(session => 
@@ -173,6 +186,7 @@ function Home() {
                 value={inputValue}
                 onChange={handleInputChange}
                 rows={1} // Start with one row
+                onKeyDown={handleKeyDown} // Capture Enter key press
               />
               <button type="submit" className="send">
                 <img src={sendBtn} alt="send" />
