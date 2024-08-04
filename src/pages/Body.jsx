@@ -1,11 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import { Ollama } from 'ollama';
 import './Home.css';
 import gptLogo from '../../assets/cube.svg';
 import addBtn from '../../assets/add-30.png';
 import msgIcon from '../../assets/message.svg';
 import sendBtn from '../../assets/send.svg';
 import userIconscg from '../../assets/kindpng_104902.svg';
+
+const ollama = new Ollama({
+  model: 'phi'
+})
 
 function Home() {
   const [inputValue, setInputValue] = useState('');
@@ -29,28 +34,45 @@ function Home() {
       const callApiWithRetry = async (retries = 3, delay = 1000) => {
         for (let i = 0; i < retries; i++) {
           try {
-            const response = await axios.post(
-              'http://localhost:11434/api/generate', // Replace with your Inference API endpoint
+            let streamedResponse = '';
+            // const response = await axios.post(
+            //   'http://localhost:11434/api/generate', // Replace with your Inference API endpoint
+            //   {
+            //     model: 'phi',
+            //     prompt: inputValue,
+            //     format: 'json',
+            //     stream: false
+            //   },
+            //   {
+            //     headers: { // Replace with your API token
+            //       'Content-Type': 'application/json'
+            //     },
+            //   }
+            // );
+
+            const response = await ollama.chat(
               {
                 model: 'phi',
-                prompt: inputValue,
-                format: 'json',
-                stream: false
-              },
-              {
-                headers: { // Replace with your API token
-                  'Content-Type': 'application/json'
-                },
+                messages: [{role:'user', content:inputValue}],
+                stream: true  
               }
             );
 
+            for await (const part of response){
+              streamedResponse+=part.message.content;
+                
+              console.log('Streamed Part:', part.message.content);
+            }
+            console.log('Complete Streamed Response:', streamedResponse);
+
+
             // Log entire response and cleaned response for debugging
-            console.log('API response:', response.data);
-            const responseString = response.data.response.trim();
-            console.log('Raw response string:', responseString);
+            // console.log('API response:', response.data);
+            // const responseString = response.data.response.trim();
+            // console.log('Raw response string:', streamedResponse);
 
             // Return the raw response data
-            return { sender: 'gpt', message: responseString };
+            return { sender: 'gpt', message: streamedResponse };
           } catch (error) {
             console.error('Error fetching response from Inference API:', error);
             if (error.response) {
