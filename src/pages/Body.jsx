@@ -151,6 +151,12 @@ function Home() {
     resizeTextarea();
   }, [inputValue]);
   
+  useEffect(() => {
+    if (chatLogRef.current) {
+      chatLogRef.current.scrollTop = chatLogRef.current.scrollHeight;
+    }
+  }, [sessions]);
+
   // Handle Enter key press
   const handleKeyDown = (event) => {
     if (event.key === 'Enter' && !event.shiftKey) {
@@ -189,7 +195,7 @@ function Home() {
       </div>
       <div className="main">
         <div className="chats">
-          <div className='chat-log'>
+          <div className='chat-log' ref={chatLogRef}>
             {currentSession.chatLog.map((chat, index) => (
               <div key={index} className='chat-message'>
                 <div className='avatar'>

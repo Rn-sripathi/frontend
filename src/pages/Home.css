@@ -224,6 +224,7 @@ body {
     /* display: flex; */
     overflow-y: auto;
     text-align: left;
+    max-height: 900px;
 }
 .chat-message{
 padding: 12px;
