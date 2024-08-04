@@ -18,7 +18,7 @@ function Home() {
   const handleInputChange = (event) => {
     setInputValue(event.target.value);
   };
-  // hello
+
   // Handle form submission
   const handleSubmit = async (event) => {
     event.preventDefault();
