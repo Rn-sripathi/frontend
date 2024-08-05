@@ -17,7 +17,7 @@ body {
 /* body css */
 
 .App {
-    min-height: 100vh;
+    height: 100vh;
     display: flex;
 }
 .upperSideTop, .upperSideBottom {
@@ -37,7 +37,7 @@ body {
 }
 
 .main {
-    flex: 3;
+    flex: 5;
     display: flex;
     flex-direction: column;
     align-items: center;

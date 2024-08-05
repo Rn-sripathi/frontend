@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { Ollama } from 'ollama';
+
 import './Home.css';
 import gptLogo from '../../assets/cube.svg';
 import addBtn from '../../assets/add-30.png';
@@ -8,226 +8,196 @@ import msgIcon from '../../assets/message.svg';
 import sendBtn from '../../assets/send.svg';
 import userIconscg from '../../assets/kindpng_104902.svg';
 
-const ollama = new Ollama({
-  model: 'phi'
-})
+import { useNavigate } from "react-router-dom";
+
+
+
+import useFetchSessions from "../hooks/GetAllSessions";
+
 
 function Home() {
-  const [inputValue, setInputValue] = useState('');
-  const [sessions, setSessions] = useState([{ id: 1, queries: [], chatLog: [], firstQuery: '' }]);
-  const [currentSessionId, setCurrentSessionId] = useState(1);
-  const textareaRef = useRef(null);
-  const chatLogRef = useRef(null);
+   const [query, setQuery] = useState('');
+   const [chatHistory, setChatHistory] = useState([]);
+   const [firstSearch, setFirstSearch] = useState(false);
+   const [currentSessionId, setCurrentSessionId] = useState("firstSession");
 
-  // Handle input change
-  const handleInputChange = (event) => {
-    setInputValue(event.target.value);
-  };
+   const token = localStorage.getItem("token");
 
-  // Handle form submission
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    if (inputValue.trim() !== '') {
-      const newMessage = { sender: 'user', message: inputValue };
 
-      // Call the LLM API to get a response
-      const callApiWithRetry = async (retries = 3, delay = 1000) => {
-        for (let i = 0; i < retries; i++) {
-          try {
-            let streamedResponse = '';
-            // const response = await axios.post(
-            //   'http://localhost:11434/api/generate', // Replace with your Inference API endpoint
-            //   {
-            //     model: 'phi',
-            //     prompt: inputValue,
-            //     format: 'json',
-            //     stream: false
-            //   },
-            //   {
-            //     headers: { // Replace with your API token
-            //       'Content-Type': 'application/json'
-            //     },
-            //   }
-            // );
 
-            const response = await ollama.chat(
-              {
-                model: 'phi',
-                messages: [{role:'user', content:inputValue}],
-                stream: true  
-              }
-            );
+   const handleInputChange = (e) => {
+      setQuery(e.target.value);
+   };
 
-            for await (const part of response){
-              streamedResponse+=part.message.content;
-                
-              console.log('Streamed Part:', part.message.content);
+   // Handle search
+   const handleSearch = async () => {
+      //  e.preventDefault();
+      if (query.trim() === '') return; // Avoid empty queries
+      try {
+         const response = await axios.post("http://localhost:8081/api/query/llmquery", {
+            query: query,
+            current_session_id: currentSessionId
+         }, {
+            headers: {
+               Authorization: token
             }
-            console.log('Complete Streamed Response:', streamedResponse);
+         });
+         setChatHistory(response.data);
+         setQuery(''); // Clear the input field
 
+         if (response.data.length === 1) {
+            setFirstSearch(true);
+         }
+      } catch (error) {
+         console.error('Error fetching search results:', error.message);
+      }
+   };
+   // Function to handle Enter key press
+   const handleKeyDown = (e) => {
+      if (e.key === 'Enter') {
+         handleSearch();
+      }
+   };
 
-            // Log entire response and cleaned response for debugging
-            // console.log('API response:', response.data);
-            // const responseString = response.data.response.trim();
-            // console.log('Raw response string:', streamedResponse);
+   // Load all the session details
+   const { sessionData, dataFetched, error } = useFetchSessions(token, firstSearch);
+   console.log("Ansnsnsnsn")
+   if (error) console.error(error);
 
-            // Return the raw response data
-            return { sender: 'gpt', message: streamedResponse };
-          } catch (error) {
-            console.error('Error fetching response from Inference API:', error);
-            if (error.response) {
-              // Server responded with a status other than 2xx
-              console.error('Error response:', error.response);
-              if (error.response.data && error.response.data.error && error.response.data.error.includes('currently loading')) {
-                if (i < retries - 1) {
-                  console.log(`Retrying in ${delay}ms...`);
-                  await new Promise(resolve => setTimeout(resolve, delay));
-                } else {
-                  return { sender: 'gpt', message: 'Error: Model is currently loading. Please try again later.' };
-                }
-              } else {
-                return { sender: 'gpt', message: `Error: ${error.response.data.error}` };
-              }
-            } else if (error.request) {
-              // Request was made but no response received
-              console.error('Error request:', error.request);
-              return { sender: 'gpt', message: 'Error: No response received from the server.' };
-            } else {
-              // Something happened in setting up the request that triggered an Error
-              console.error('Error message:', error.message);
-              return { sender: 'gpt', message: `Error: ${error.message}` };
+   // Get the latest SessionId.
+   useEffect(() => {
+      if (dataFetched && sessionData.length > 0) {
+         try {
+            const newSessionId = sessionData[0].sessionId;
+            setCurrentSessionId(newSessionId);
+            handleClick(newSessionId);
+         } catch (err) {
+            console.error(err);
+         }
+      } else return;
+   }, [dataFetched, sessionData]);
+
+   // Transform session data(questions) from objects to string.
+   const transformData = (data) => {
+      return data.map(session => ({
+         sessionId: session.sessionId,
+         questions: session.questions.map(q =>
+            Object.values(q).filter(value => value === q.question).join('')
+         )
+      }));
+   };
+   // console.log(transformData(sessionData));
+
+   // Create new Session & get sessionId.
+   const newSession = async () => {
+      if (sessionData[sessionData.length - 1].questions.length > 0) {  // Returns the function without exicution if the previous session is empty
+         try {
+            const response = await axios.post("http://localhost:8081/api/query/createNewSession", {}, {
+               headers: {
+                  Authorization: token
+               }
+            })
+            setCurrentSessionId(response.data.newSessionId);
+            // console.log(response.data.newSessionId);
+            setChatHistory([]);
+         } catch (err) {
+            console.error(`Error Message :\n    ${err}`);
+         }
+      } else return;
+   }
+
+   // Get Session Details.
+   const handleClick = async (sessionId) => {
+      // console.log(`Session ID clicked: ${sessionId}`);
+      // Call your function with the sessionId
+      try {
+         const response = await axios.post("http://localhost:8081/api/query/getSessionDetails", {
+            session_to_change_id: sessionId
+         }, {
+            headers: {
+               Authorization: token
             }
-          }
-        }
-      };
+         });
+         setChatHistory(response.data);
+         setCurrentSessionId(sessionId);
+      } catch (err) {
+         console.error(`Error Fetching Session Details :\n ${err}`);
+      }
+   };
 
-      const responseMessage = await callApiWithRetry();
-      setSessions(prevSessions => prevSessions.map(session => 
-        session.id === currentSessionId 
-          ? { 
-              ...session, 
-              chatLog: [...session.chatLog, newMessage, responseMessage], // Append new message and response
-              queries: [inputValue, ...session.queries],
-              firstQuery: session.firstQuery || inputValue // Set firstQuery if not already set
-            }
-          : session
-      ));
-      setInputValue(''); // Clear input field
-    } else {
-      alert('Input cannot be empty');
-    }
-  };
-
-  // Handle new chat creation
-  const handleNewChat = () => {
-    const newSessionId = sessions.length + 1;
-    setSessions([...sessions, { id: newSessionId, queries: [], chatLog: [], firstQuery: '' }]);
-    setCurrentSessionId(newSessionId);
-  };
-
-  // Switch to a different session
-  const handleSessionClick = (sessionId) => {
-    setCurrentSessionId(sessionId);
-  };
-
-  // Resize textarea based on content
-  const resizeTextarea = () => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-    }
-  };
-
-  // Resize textarea whenever inputValue changes
-  useEffect(() => {
-    resizeTextarea();
-  }, [inputValue]);
-
-  // Scroll to bottom of chat log whenever chatLog changes
-  useEffect(() => {
-    if (chatLogRef.current) {
-      chatLogRef.current.scrollTop = chatLogRef.current.scrollHeight;
-    }
-  }, [sessions]);
-
-  // Handle Enter key press
-  const handleKeyDown = (event) => {
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault();
-      handleSubmit(event);
-    }
-  };
-
-  const currentSession = sessions.find(session => session.id === currentSessionId);
-
-  // Debugging logs
-  console.log('Current sessions:', sessions);
-  console.log('Current session ID:', currentSessionId);
-  console.log('Current session:', currentSession);
-
-  return (
-    <div className="App">
-      <div className="sideBar">
-        <div className="upperSide">
-          <div className="upperSideTop">
-            <img src={gptLogo} alt="GPT Logo" className="logo" />
-            <span className="brand">materiAl</span>
-          </div>
-          <button className="midBtn" onClick={handleNewChat}>
-            <img src={addBtn} alt="new chat" className="addBtn" />
-            Chat
-          </button>
-          <div className="upperSideBottom">
-            {sessions.map((session) => (
-              <button 
-                key={session.id} 
-                className={`query ${session.id === currentSessionId ? 'active' : ''}`} 
-                onClick={() => handleSessionClick(session.id)}
-              >
-                <img src={msgIcon} alt="Query" />
-                {session.firstQuery.length > 15 ? `${session.firstQuery.substring(0, 20)}...` : session.firstQuery || `Session ${session.id}`}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-      <div className="main">
-        <div className="chats">
-          <div className='chat-log' ref={chatLogRef}>
-            {currentSession.chatLog.map((chat, index) => (
-              <div key={index} className='chat-message'>
-                <div className='avatar'>
-                  {chat.sender !== 'gpt' && <img src={userIconscg} alt="user logo" className="avatar-logo" />}
-                  {chat.sender === 'gpt' && <img src={gptLogo} alt="GPT Logo" className="avatar-logo" />}
-                </div>
-                <div className='message'>
-                  {chat.message}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="chatFooter">
-          <form onSubmit={handleSubmit}>
-            <div className="inp">
-              <textarea
-                ref={textareaRef}
-                placeholder="Type here ......"
-                value={inputValue}
-                onChange={handleInputChange}
-                rows={1} // Start with one row
-                onKeyDown={handleKeyDown} // Capture Enter key press
-              />
-              <button type="submit" className="send">
-                <img src={sendBtn} alt="send" />
-              </button>
+   return (
+      <div className="App">
+         <div className="sideBar">
+            <div className="upperSide">
+               <div className="upperSideTop">
+                  <img src={gptLogo} alt="GPT Logo" className="logo" />
+                  <span className="brand">materiAl</span>
+               </div>
+               <button className="midBtn" onClick={newSession}>
+                  <img src={addBtn} alt="new chat" className="addBtn" />
+                  Chat
+               </button>
+               <div className="upperSideBottom">
+                  {transformData(sessionData).map((session) => (
+                     <button
+                        key={session.sessionId}
+                        className={`query ${session.sessionId === currentSessionId ? 'active' : ''}`}
+                        onClick={() => handleClick(session.sessionId)}
+                     >
+                        <img src={msgIcon} alt="Query" />
+                        {session.questions[0].length > 15 ? `${session.questions[0].substring(0, 20)}...` : session.questions[0]}
+                     </button>
+                  ))}
+               </div>
             </div>
-          </form>
-          <p>This may produce incorrect results</p>
-        </div>
+         </div>
+         <div className="main">
+            <div className="chats">
+               <div className='chat-log'>
+                  {chatHistory.map((chat, index) => (
+                     <>
+                        <div key={index} className='chat-message'>
+                           <div className='avatar'>
+                              <img src={userIconscg} alt="GPT Logo" className="avatar-logo" />
+                           </div>
+                           <div className='message'>
+                              {chat.question}
+                           </div>
+
+                        </div>
+                        <div key={index} className='chat-message'>
+                           <div className='avatar'>
+                              <img src={gptLogo} alt="user logo" className="avatar-logo" />
+                           </div>
+                           <div className='message'>
+                              {chat.answer}
+                           </div>
+                        </div>
+                     </>
+                  ))}
+               </div>
+            </div>
+            <div className="chatFooter">
+               <div >
+                  <div className="inp">
+                     <textarea
+
+                        placeholder="Type here ......"
+                        value={query}
+                        onChange={handleInputChange}
+                        rows={1} // Start with one row
+                        onKeyDown={handleKeyDown} // Capture Enter key press
+                     />
+                     <button type="submit" onClick={handleSearch} className="send">
+                        <img src={sendBtn} alt="send" />
+                     </button>
+                  </div>
+               </div>
+               <p>This may produce incorrect results</p>
+            </div>
+         </div>
       </div>
-    </div>
-  );
+   );
 }
 
 export default Home;
