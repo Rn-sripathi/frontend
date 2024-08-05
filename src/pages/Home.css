@@ -103,16 +103,14 @@ body {
 
 .query {
     display: flex;
-    align-items: center;
     font-family: jost;
     background: #2D2B55;
     color: rgba(222, 222, 222, 1);
-    padding: 1.5rem;
     width: 100%;
-    margin: 1rem auto;
+    margin: 1.5rem auto;
     border-radius: 0.5rem;
-    border: 1px solid rgba(98, 98, 98, 1);
     overflow: hidden;
+    padding: 0 1rem;
     text-overflow: ellipsis;
     white-space: nowrap;
     box-sizing: border-box;

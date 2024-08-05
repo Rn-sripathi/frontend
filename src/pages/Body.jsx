@@ -61,7 +61,6 @@ function Home() {
 
    // Load all the session details
    const { sessionData, dataFetched, error } = useFetchSessions(token, firstSearch);
-   console.log("Ansnsnsnsn")
    if (error) console.error(error);
 
    // Get the latest SessionId.
@@ -139,14 +138,17 @@ function Home() {
                </button>
                <div className="upperSideBottom">
                   {transformData(sessionData).map((session) => (
-                     <button
-                        key={session.sessionId}
-                        className={`query ${session.sessionId === currentSessionId ? 'active' : ''}`}
-                        onClick={() => handleClick(session.sessionId)}
-                     >
-                        <img src={msgIcon} alt="Query" />
-                        {session.questions[0].length > 15 ? `${session.questions[0].substring(0, 20)}...` : session.questions[0]}
-                     </button>
+                     <div className="query">
+                        <button
+                           key={session.sessionId}
+                           className={`query ${session.sessionId === currentSessionId ? 'active' : ''}`}
+                           onClick={() => handleClick(session.sessionId)}
+                        >
+                           <img src={msgIcon} alt="Query" />
+                           {session.questions[0] ? session.questions[0] : "No Questions"}
+                        </button>
+                     </div>
+
                   ))}
                </div>
             </div>
