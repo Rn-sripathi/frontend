@@ -10,7 +10,7 @@ html {
 }
 
 body {
-    background: rgb(3, 0, 31);
+    background: 141414;
     color: white;
     font-family: 'Jost', sans-serif;
 }
@@ -21,13 +21,13 @@ body {
     display: flex;
 }
 .upperSideTop, .upperSideBottom {
-    background-color: rgb(3, 0, 31);
+    background-color: #141414;
   }
 .sideBar {
     flex: 1;
     max-width: 300px;
-    border-right: 1px solid rgb(100, 100, 100);
-    background: #1C1A3C;
+    /* border-right: 1px solid rgb(100, 100, 100); */
+    background: #141414;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -42,7 +42,7 @@ body {
     flex-direction: column;
     align-items: center;
     padding: 2rem;
-    background-color: rgb(3, 0, 31);
+    background-color: #1D1D1D;
     margin-left: 300px; /* Add margin to account for the fixed sidebar */
 }
 
@@ -60,9 +60,11 @@ body {
 
 .upperSide {
     padding: 2.5rem ;
-    border-bottom: 0px solid rgb(3, 0, 31);
+    /* border-bottom: 0px solid rgb(3, 0, 31); */
     flex-grow: 1;
-    background-color:rgb(3, 0, 31) ;
+    background-color: #141414;
+    border: none;
+
     
 }
 
@@ -79,13 +81,13 @@ body {
 
 .upperSideBottom {
     flex-grow: 1;
-    overflow-y: auto;
+    /* overflow-y: auto; */
     max-height: 580px;
 }
 
 .midBtn {
-    background: #2D2B55;
-    border: 1px solid rgba(98, 98, 98, 1);
+    background: #1D1D1D;
+    /* border: 1px solid rgba(98, 98, 98, 1); */
     color: white;
     padding: 1.5rem;
     font-size: 1.5rem;
@@ -99,22 +101,24 @@ body {
     text-overflow: ellipsis;
     white-space: nowrap;
     font-family:jost;
+    border-radius: 1rem;
 }
 
 .query {
     display: flex;
     font-family: jost;
-    background: #2D2B55;
+    background: #1D1D1D;
     color: rgba(222, 222, 222, 1);
     width: 100%;
-    margin: 1.5rem auto;
-    border-radius: 0.5rem;
+    margin: 1.25rem auto;
+    border-radius: 1rem;
     overflow: hidden;
-    padding: 0 1rem;
+    padding: 0 0.5rem;
     text-overflow: ellipsis;
     white-space: nowrap;
     box-sizing: border-box;
     font-size: small;
+    border: 1rem white;
   }
 
 .query > img {
@@ -136,7 +140,7 @@ body {
     flex-grow: 1;
     overflow-y: auto;
     margin-bottom: 2rem;
-    background: rgb(3, 0, 31);
+    background: #1D1D1D;
     border-radius: 1rem;
     display:flex;
     flex: 1;
@@ -153,7 +157,7 @@ body {
     align-items: flex-start;
     max-height: 400px; /* Set a maximum height */
     overflow-y: auto; /* Enable vertical scrolling */
-    background: #3C3A6A;
+    background: #1D1D1D;
     border-radius: 1rem;
     color: white;
     text-align: left;
@@ -169,13 +173,13 @@ body {
     justify-content: center;
     position: sticky;
     bottom: 0;
-    background: rgb(3, 0, 31); /* Match the background color */
+    background: #1D1D1D; /* Match the background color */
     padding: 1rem 0; /* Add some padding for spacing */
 }
 
 .inp {
     padding: 0.5rem;
-    background: #1C1A3C;
+    background: #2A2A2A;
     display: flex;
     align-items: center;
     border-radius: 0.5rem;
@@ -239,7 +243,7 @@ padding-inline: 10px;
 }
 
 .avatar {
-background: #2D2B55;
+background: #373737;
 border-radius:50%;
 width: 40px;
 height: 40px;
@@ -264,6 +268,7 @@ border-radius: 10px; */
 .avatar-logo {
     width: 30px;
     height: 30px;
+    background-color: 373737;
   }
 .useravatar-logo{
     color: white;
@@ -292,7 +297,7 @@ border-radius: 10px; */
         width: 100%;
         max-width: none;
         border-right: none;
-        border-bottom: 1px solid rgb(100, 100, 100);
+        /* border-bottom: 1px solid rgb(100, 100, 100); */
     }
 
     .main {
