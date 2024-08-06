@@ -104,7 +104,7 @@ function Home() {
          }
       } else return;
    }
-   // hi
+   
    // Get Session Details.
    const handleClick = async (sessionId) => {
       // console.log(`Session ID clicked: ${sessionId}`);
